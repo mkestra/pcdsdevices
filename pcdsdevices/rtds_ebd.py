@@ -3,7 +3,8 @@ from ophyd import Signal
 
 from .device import GroupDevice
 from .inout import InOutPositioner
-from .interface import BaseInterface, LightpathInOutCptMixin
+from .epics_motor import BeckhoffAxis
+from .interface import BaseInterface, LightpathInOutCptMixin, LightpathMixin
 from .signal import PytmcSignal
 
 
@@ -42,6 +43,27 @@ class PneumaticActuator(InOutPositioner):
             self.in_cmd.put(1)
         elif state.name == 'RETRACTED':
             self.out_cmd.put(1)
+
+class RTDSX0ThreeStage(BaseInterface, LightpathMixin)
+    """Three stages X,Y,Z, for solid drilling experiments"""
+
+    mmsx = Cpt(BeckhoffAxis, ':MMS:X', kind='normal')
+    mmsy = Cpt(BeckhoffAxis, ':MMS:Y', kind='normal')
+    mmsz = Cpt(BeckhoffAxis, ':MMS:Z', kind='normal')
+
+    #determine if the y stage is at it's outer limits witch
+    open_limit = Cpt(EpicsSignalRO, ':MMS:Y:PLC:bLimitBackwardEnable_RBV', kind='normal',
+                     doc='Reads if the y-stage is out, at the open limit.')
+    
+    lightpath_cpts = ['open_limit']
+
+    def calc_lightpath_state(self, open_limit=None):
+        # Logic, calculations using open_limit for y-stage
+        status = LightpathState(
+            inserted=~open_limit, removed=open_limit,
+            output = {'K0' : 0.0}
+        )
+        return status
 
 
 class RTDSBase(BaseInterface, GroupDevice, LightpathInOutCptMixin):
