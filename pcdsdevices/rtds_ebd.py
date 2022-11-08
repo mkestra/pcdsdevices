@@ -5,7 +5,7 @@ from .device import GroupDevice
 from .inout import InOutPositioner
 from .epics_motor import BeckhoffAxis
 from .interface import BaseInterface, LightpathInOutCptMixin, LightpathMixin
-from .signal import PytmcSignal
+from .signal import PytmcSignal, EpicsSignalRO
 
 
 class PneumaticActuator(InOutPositioner):
@@ -44,7 +44,7 @@ class PneumaticActuator(InOutPositioner):
         elif state.name == 'RETRACTED':
             self.out_cmd.put(1)
 
-class RTDSX0ThreeStage(BaseInterface, LightpathMixin)
+class RTDSX0ThreeStage(BaseInterface, LightpathMixin):
     """Three stages X,Y,Z, for solid drilling experiments"""
 
     mmsx = Cpt(BeckhoffAxis, ':MMS:X', kind='normal')
