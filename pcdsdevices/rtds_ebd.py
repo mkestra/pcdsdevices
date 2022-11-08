@@ -3,6 +3,7 @@ from ophyd import Signal
 
 from .device import GroupDevice
 from .inout import InOutPositioner
+from lightpath import LightpathState
 from .epics_motor import BeckhoffAxis
 from .interface import BaseInterface, LightpathInOutCptMixin, LightpathMixin
 from .signal import PytmcSignal, EpicsSignalRO
@@ -60,7 +61,7 @@ class RTDSX0ThreeStage(BaseInterface, LightpathMixin):
     def calc_lightpath_state(self, open_limit=None):
         # Logic, calculations using open_limit for y-stage
         status = LightpathState(
-            inserted=~open_limit, removed=open_limit,
+            inserted = not open_limit, removed = open_limit,
             output = {'K0' : 0.0}
         )
         return status
